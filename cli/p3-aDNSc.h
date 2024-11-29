@@ -3,8 +3,8 @@
 /* L'aplicació UEB amb sockets TCP/IP                                     */
 /* Fitxer capçalera de aDNSc.c                                            */
 /*                                                                        */
-/* Autors:                                                                */
-/* Data:                                                                  */
+/* Autors: Arnau Herrera i Aleix Suriñach                                 */
+/* Data: novembre 2024                                                    */
 /*                                                                        */
 /**************************************************************************/
 
