@@ -237,7 +237,7 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
     long seconds = end.tv_sec - start.tv_sec;
     long nanoseconds = end.tv_nsec - start.tv_nsec;
     double elapsed = seconds + nanoseconds*1e-9;
-    double vef = (longEnv/8)/elapsed;
+    double vef = (longEnv*8)/elapsed;
 
     // Guardar el temps i velocitat   
     sprintf(TextTemps, "Temps d'enviament: %.9f segons i %.2f bps\n", elapsed, vef);
