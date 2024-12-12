@@ -274,7 +274,7 @@ int desferURI(const char *uri, char *esq, char *nom_host, int *port, char *nom_f
 
     /* URIs sense #port, p.e., esq://host/fitx, 2 valors assignats; */
     /* llavors es fa port = 0 i una nova assignació                 */
-    if (nassignats == 2)
+    if (nassignats == 3)
     {
         *port = 0;
         nassignats = sscanf(uri, "%[^:]://%[^/]%s", esq, nom_host, nom_fitx);
