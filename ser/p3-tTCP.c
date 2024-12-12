@@ -259,12 +259,13 @@ char* T_ObteTextRes(int *CodiRes)
 /*  -2 si passa "Temps" sense que arribi res.                             */
 int T_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, int Temps)
 {
-		fd_set sockets;
+	fd_set sockets;
     FD_ZERO(&sockets);
     int fdmax = 0;
 
 	// Trobar skc valor més gran
-    for (int i = 0; i < LongLlistaSck; i++) {
+    int i;
+	for (i = 0; i < LongLlistaSck; i++) {
         int sck = LlistaSck[i];
         
 		if (sck != -1) FD_SET(sck, &sockets); // Marcar socket
@@ -277,7 +278,7 @@ int T_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, int 
     _timeval.tv_usec = Temps * 1000;
 
 	// Es crida a select() per escoltar si ha arribat alguna cosa per ser llegida en algun sck id
-	int socketSeleccionat = select(maxfd+1, &sockets, NULL, NULL, Temps == -1 ? NULL : &_timeval);
+	int socketSeleccionat = select(fdmax+1, &sockets, NULL, NULL, Temps == -1 ? NULL : &_timeval);
 	if (socketSeleccionat == -1) { // Error
 		return -1;
 	}
@@ -285,13 +286,13 @@ int T_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, int 
 		return -2;
 	}
 	else { // Retornar socket demanat
-		int i = 0, acabat = 0;
-		while (i < LongLlistaSck && acabat != 1) {
-			if (LlistaSck[i] != -1 && FD_ISSET(LlistaSck[i], &sockets)) {
+		int j = 0, acabat = 0;
+		while (j < LongLlistaSck && acabat != 1) {
+			if (LlistaSck[j] != -1 && FD_ISSET(LlistaSck[j], &sockets)) {
                 acabat = 1;
             }
-			if (acabat != 1) i++;
+			if (acabat != 1) j++;
 		}
-		return LlistaSck[i];
+		return LlistaSck[j];
 	}
 }
