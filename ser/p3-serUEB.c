@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    int i; 
+    int i;
     for (i = 0; i < LongLlistaSck; i++)
         LlistaSck[i] = -1;
 
@@ -152,43 +152,30 @@ int main(int argc, char *argv[])
             char TipusPeticio[4];
             int bytesEnviats;
             int servPet = UEBs_ServeixPeticio(socketAux, TipusPeticio, NomFitx, TextRes, TextTemps);
-            while (servPet != -3)
-            {
-                // Client tanca connexio
-                if (servPet != -3)
-                {
-                    printf("Petició %s del fitxer %s\n", TipusPeticio, NomFitx);
-                    dprintf(fileLog, "Petició %s del fitxer %s\n", TipusPeticio, NomFitx);
-                }
-
-                // Errors
-                if (servPet == -1 || servPet == -2)
-                {
-                    printf("UEBc_ServeixPeticio(): %s\n\n", TextRes);
-                    dprintf(fileLog, "UEBc_ServeixPeticio(): %s\n\n", TextRes);
-                    exit(-1);
-                }
-
-                // Tot correcte
-                if (servPet == 0 || servPet == 1 || servPet == -4)
-                {
-                    printf("UEBc_ServeixPeticio(): %s\n\n", TextRes);
-                    dprintf(fileLog, "UEBc_ServeixPeticio(): %s\n", TextRes);
-
-                    // Mostrar el temps
-                    printf("%s\n", TextTemps);
-                    dprintf(fileLog, "%s\n", TextTemps);
-                }
-
-                // Netejar variables i servir peticio
-                memset(NomFitx, 0, sizeof(NomFitx));
-                memset(TipusPeticio, 0, sizeof(TipusPeticio));
-                servPet = UEBs_ServeixPeticio(socketAux, TipusPeticio, NomFitx, TextRes, TextTemps);
-            }
 
             // Client tanca connexio
+            if (servPet != -3)
+            {
+                printf("Petició %s del fitxer %s\n", TipusPeticio, NomFitx);
+                dprintf(fileLog, "Petició %s del fitxer %s\n", TipusPeticio, NomFitx);
+            }
+
             printf("UEBc_ServeixPeticio(): %s\n\n", TextRes);
             dprintf(fileLog, "UEBc_ServeixPeticio(): %s\n\n", TextRes);
+
+            // Errors
+            if (servPet == -1 || servPet == -2)
+            {
+                exit(-1);
+            }
+
+            // Tot correcte
+            if (servPet == 0 || servPet == 1 || servPet == -4)
+            {
+                // Mostrar el temps
+                printf("%s\n", TextTemps);
+                dprintf(fileLog, "%s\n", TextTemps);
+            }
         }
     }
 
