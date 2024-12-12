@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 /*  número de port o 3 si no en tenia).                                   */
 int desferURI(const char *uri, char *esq, char *nom_host, int *port, char *nom_fitx)
 {
-    int nassignats;
+    int nassignats = 0;
     char port_str[100];
 
     strcpy(esq, "");
@@ -259,25 +259,20 @@ int desferURI(const char *uri, char *esq, char *nom_host, int *port, char *nom_f
 
     nassignats = sscanf(uri, "%[^:]://%[^:]:%[^/]%s", esq, nom_host, port_str, nom_fitx);
 
-    printf("nassignats %d\n", nassignats);
-    printf("esq %s\n", esq);
-    printf("nom_host %s\n", nom_host);
-    printf("port_str %s\n", port_str);
-    printf("nom_fitx %s\n", nom_fitx);
-
-    /* URIs amb #port, p.e., esq://host:port/fitx, 4 valors assignats */
+    /*URIs amb #port, p.e., esq://host:port/fitx, 4 valors assignats */
     if (nassignats == 4)
     {
-        *port = atoi(port_str);
+
+        *port = atoi(port_str); // Convertim el port a un enter
         return nassignats;
     }
 
     /* URIs sense #port, p.e., esq://host/fitx, 2 valors assignats; */
     /* llavors es fa port = 0 i una nova assignació                 */
-    if (nassignats == 3)
+    if (nassignats == 2)
     {
-        *port = 0;
         nassignats = sscanf(uri, "%[^:]://%[^/]%s", esq, nom_host, nom_fitx);
+        *port = 0; // Assignem 0 al port si no està especificat
         return nassignats;
     }
 

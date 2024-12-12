@@ -356,6 +356,21 @@ int UEBs_TrobaAdrSckConnexio(int SckCon, char *IPloc, int *portTCPloc, char *IPr
 /*  -1 si hi ha error.                                                    */
 int UEBs_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, char *TextRes)
 {
+    int CodiRes;
+    int socket = T_HaArribatAlgunaCosaPerLlegir(LlistaSck, LongLlistaSck, -1);
+    if (socket == -1)
+    {
+        sprintf(TextRes, "T_HaArribatAlgunaCosaPerLlegir(): %s", T_ObteTextRes(&CodiRes));
+        return -1;
+    }
+    if (socket == -2)
+    {
+        sprintf(TextRes, "TimeOut: %s");
+        return -1;
+    }
+
+    sprintf(TextRes, "Tot bé\0");
+    return socket;
 }
 
 /* Si ho creieu convenient, feu altres funcions EXTERNES                  */
