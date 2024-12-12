@@ -24,7 +24,6 @@
 
 #include "p3-tTCP.h"
 
-
 /* Crea un socket TCP “client” a l’@IP “IPloc” i #port TCP “portTCPloc”   */
 /* (si “IPloc” és “0.0.0.0” i/o “portTCPloc” és 0 es fa/farà una          */
 /* assignació implícita de l’@IP i/o del #port TCP, respectivament).      */
@@ -39,17 +38,20 @@ int TCP_CreaSockClient(const char *IPloc, int portTCPloc)
 {
 	struct sockaddr_in adrloc;
 	int i;
-	int scon = socket(AF_INET,SOCK_STREAM,0);
-	
-	adrloc.sin_family=AF_INET;
-	adrloc.sin_port=htons(portTCPloc);
-	adrloc.sin_addr.s_addr=inet_addr(IPloc);
-	for(i=0;i<8;i++){adrloc.sin_zero[i]='\0';}
-	if(bind(scon,(struct sockaddr*)&adrloc,sizeof(adrloc))==-1)
+	int scon = socket(AF_INET, SOCK_STREAM, 0);
+
+	adrloc.sin_family = AF_INET;
+	adrloc.sin_port = htons(portTCPloc);
+	adrloc.sin_addr.s_addr = inet_addr(IPloc);
+	for (i = 0; i < 8; i++)
+	{
+		adrloc.sin_zero[i] = '\0';
+	}
+	if (bind(scon, (struct sockaddr *)&adrloc, sizeof(adrloc)) == -1)
 	{
 		scon = -1;
 	}
-	
+
 	return scon;
 }
 
@@ -68,23 +70,26 @@ int TCP_CreaSockServidor(const char *IPloc, int portTCPloc)
 {
 	int i;
 	struct sockaddr_in adrloc;
-	int sesc = socket(AF_INET,SOCK_STREAM,0);
-		
-	adrloc.sin_family=AF_INET;
-	adrloc.sin_port=htons(portTCPloc);
-	adrloc.sin_addr.s_addr=inet_addr(IPloc);
-	for(i=0;i<8;i++){adrloc.sin_zero[i]='\0';}
+	int sesc = socket(AF_INET, SOCK_STREAM, 0);
 
-	if(bind(sesc,(struct sockaddr*)&adrloc,sizeof(adrloc)))
+	adrloc.sin_family = AF_INET;
+	adrloc.sin_port = htons(portTCPloc);
+	adrloc.sin_addr.s_addr = inet_addr(IPloc);
+	for (i = 0; i < 8; i++)
+	{
+		adrloc.sin_zero[i] = '\0';
+	}
+
+	if (bind(sesc, (struct sockaddr *)&adrloc, sizeof(adrloc)))
 	{
 		sesc = -1;
 	}
-	
-	if(listen(sesc,3)==-1)
+
+	if (listen(sesc, 3) == -1)
 	{
 		sesc = -1;
 	}
- 
+
 	return sesc;
 }
 
@@ -105,13 +110,16 @@ int TCP_DemanaConnexio(int Sck, const char *IPrem, int portTCPrem)
 {
 	int i;
 	struct sockaddr_in adrrem;
-	adrrem.sin_family=AF_INET;
-	adrrem.sin_port=htons(portTCPrem);
-	adrrem.sin_addr.s_addr=inet_addr(IPrem);
-	for(i=0;i<8;i++){adrrem.sin_zero[i]='\0';}
+	adrrem.sin_family = AF_INET;
+	adrrem.sin_port = htons(portTCPrem);
+	adrrem.sin_addr.s_addr = inet_addr(IPrem);
+	for (i = 0; i < 8; i++)
+	{
+		adrrem.sin_zero[i] = '\0';
+	}
 
-	int connexio = connect(Sck,(struct sockaddr*)&adrrem,sizeof(adrrem));
-	
+	int connexio = connect(Sck, (struct sockaddr *)&adrrem, sizeof(adrrem));
+
 	return connexio;
 }
 
@@ -135,11 +143,11 @@ int TCP_AcceptaConnexio(int Sck, char *IPrem, int *portTCPrem)
 {
 	socklen_t long_adrrem = sizeof(struct sockaddr_in);
 	struct sockaddr_in adrrem;
-	int scon = accept(Sck,(struct sockaddr*)&adrrem, &long_adrrem);
- 
+	int scon = accept(Sck, (struct sockaddr *)&adrrem, &long_adrrem);
+
 	IPrem = inet_ntoa(adrrem.sin_addr);
 	*portTCPrem = ntohs(adrrem.sin_port);
-	
+
 	return scon;
 }
 
@@ -200,12 +208,12 @@ int TCP_TrobaAdrSockLoc(int Sck, char *IPloc, int *portTCPloc)
 {
 	socklen_t long_addrloc = sizeof(struct sockaddr_in);
 	struct sockaddr_in addrloc;
-	
+
 	int res = getsockname(Sck, (struct sockaddr *)&addrloc, &long_addrloc);
-	
+
 	strcpy(IPloc, inet_ntoa(addrloc.sin_addr));
 	*portTCPloc = ntohs(addrloc.sin_port);
-	
+
 	return res;
 }
 
@@ -223,12 +231,12 @@ int TCP_TrobaAdrSockRem(int Sck, char *IPrem, int *portTCPrem)
 {
 	socklen_t long_addrem = sizeof(struct sockaddr_in);
 	struct sockaddr_in addrem;
-	
+
 	int res = getpeername(Sck, (struct sockaddr *)&addrem, &long_addrem);
-	
+
 	strcpy(IPrem, inet_ntoa(addrem.sin_addr));
 	*portTCPrem = ntohs(addrem.sin_port);
-	
+
 	return res;
 }
 
@@ -239,11 +247,11 @@ int TCP_TrobaAdrSockRem(int Sck, char *IPrem, int *portTCPrem)
 /* Retorna:                                                               */
 /*  aquest missatge de text en un "string" de C (vector de chars          */
 /*  imprimibles acabat en '\0').                                          */
-char* T_ObteTextRes(int *CodiRes)
+char *T_ObteTextRes(int *CodiRes)
 {
-	*CodiRes= errno;
+	*CodiRes = errno;
 	return strerror(errno);
-} 
+}
 
 /* Examina simultàniament durant "Temps" (en [ms]) els sockets (poden ser */
 /* TCP, UDP i teclat -stdin-) amb identificadors en la llista “LlistaSck” */
@@ -260,38 +268,47 @@ char* T_ObteTextRes(int *CodiRes)
 int T_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, int Temps)
 {
 	fd_set sockets;
-    FD_ZERO(&sockets);
-    int fdmax = 0;
+	FD_ZERO(&sockets);
+	int fdmax = 0;
 
 	// Trobar skc valor més gran
-    int i;
-	for (i = 0; i < LongLlistaSck; i++) {
-        int sck = LlistaSck[i];
-        
-		if (sck != -1) FD_SET(sck, &sockets); // Marcar socket
-		if (sck > fdmax) fdmax = sck;
-    }
+	int i;
+	for (i = 0; i < LongLlistaSck; i++)
+	{
+		int sck = LlistaSck[i];
+
+		if (sck != -1)
+			FD_SET(sck, &sockets); // Marcar socket
+		if (sck > fdmax)
+			fdmax = sck;
+	}
 
 	// A partir de Temps [ms] s’emplena una variable struct timeval amb el temps en [s] i [µs]
 	struct timeval _timeval;
-    _timeval.tv_sec = Temps / 1000;
-    _timeval.tv_usec = Temps * 1000;
+	_timeval.tv_sec = Temps / 1000;
+	_timeval.tv_usec = Temps * 1000;
 
 	// Es crida a select() per escoltar si ha arribat alguna cosa per ser llegida en algun sck id
-	int socketSeleccionat = select(fdmax+1, &sockets, NULL, NULL, Temps == -1 ? NULL : &_timeval);
-	if (socketSeleccionat == -1) { // Error
+	int socketSeleccionat = select(fdmax + 1, &sockets, NULL, NULL, Temps == -1 ? NULL : &_timeval);
+	if (socketSeleccionat == -1)
+	{ // Error
 		return -1;
 	}
-	else if (socketSeleccionat == 0) { // Temps expirat
+	else if (socketSeleccionat == 0)
+	{ // Temps expirat
 		return -2;
 	}
-	else { // Retornar socket demanat
+	else
+	{ // Retornar socket demanat
 		int j = 0, acabat = 0;
-		while (j < LongLlistaSck && acabat != 1) {
-			if (LlistaSck[j] != -1 && FD_ISSET(LlistaSck[j], &sockets)) {
-                acabat = 1;
-            }
-			if (acabat != 1) j++;
+		while (j < LongLlistaSck && acabat != 1)
+		{
+			if (LlistaSck[j] != -1 && FD_ISSET(LlistaSck[j], &sockets))
+			{
+				acabat = 1;
+			}
+			if (acabat != 1)
+				j++;
 		}
 		return LlistaSck[j];
 	}

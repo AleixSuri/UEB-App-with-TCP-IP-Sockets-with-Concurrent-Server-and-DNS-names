@@ -185,18 +185,23 @@ int main(int argc, char *argv[])
 /* -1 si hi ha error.                                                     */
 int AfegeixSck(int Sck, int *LlistaSck, int LongLlistaSck)
 {
-    // Recorrer totes les posicions fins trobar 
-    int index = 0;
-    while (LlistaSck[index] != -1 && index < LongLlistaSck)
+    // Recorrer totes les posicions fins trobar
+    int index = 0, trobat = 0;
+    while (index < LongLlistaSck && !trobat)
     {
-        index++;
+        if (LlistaSck[index] != -1)
+            index++;
+        else
+            trobat++;
     }
 
     // Si arriba al final del vector Error
-    if( index == LongLlistaSck){
+    if (!trobat)
+    {
         return -1;
     }
 
+    // Posició trobada
     LlistaSck[index] = Sck;
 
     return 0;
@@ -214,4 +219,24 @@ int AfegeixSck(int Sck, int *LlistaSck, int LongLlistaSck)
 /* -1 si hi ha error.                                                     */
 int TreuSck(int Sck, int *LlistaSck, int LongLlistaSck)
 {
+    // Recorrer totes les posicions fins trobar
+    int index = 0, trobat = 0;
+    while (index < LongLlistaSck && !trobat)
+    {
+        if (LlistaSck[index] != Sck)
+            index++;
+        else
+            trobat++;
+    }
+
+    // Si arriba al final del vector Error
+    if (!trobat)
+    {
+        return -1;
+    }
+
+    // Posició trobada
+    LlistaSck[index] = -1;
+
+    return 0;
 }

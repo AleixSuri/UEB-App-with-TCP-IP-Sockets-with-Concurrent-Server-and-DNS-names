@@ -37,7 +37,6 @@
 
 int desferURI(const char *uri, char *esq, char *nom_host, int *port, char *nom_fitx);
 
-
 int main(int argc, char *argv[])
 {
     /* Declaració de variables, p.e., int n;                                 */
@@ -72,7 +71,7 @@ int main(int argc, char *argv[])
             portTCPser = PORT_X_DEFECTE;
         }
 
-// Comprovar TOT EL QUE HA DESCOMPOSAT
+        // Comprovar TOT EL QUE HA DESCOMPOSAT
 
         // Trobar servidor
         if (DNSc_ResolDNSaIP(host, IPser, TextRes) == -1)
@@ -188,7 +187,7 @@ int main(int argc, char *argv[])
                     portTCPser = PORT_X_DEFECTE;
                 }
 
-// Comprovar TOT EL QUE HA DESCOMPOSAT
+                // Comprovar TOT EL QUE HA DESCOMPOSAT
 
                 // Trobar servidor
                 if (DNSc_ResolDNSaIP(host, IPser, TextRes) == -1)
@@ -260,13 +259,11 @@ int desferURI(const char *uri, char *esq, char *nom_host, int *port, char *nom_f
 
     nassignats = sscanf(uri, "%[^:]://%[^:]:%[^/]%s", esq, nom_host, port_str, nom_fitx);
 
-    
-    printf("nassignats %d\n",nassignats);
+    printf("nassignats %d\n", nassignats);
     printf("esq %s\n", esq);
     printf("nom_host %s\n", nom_host);
     printf("port_str %s\n", port_str);
     printf("nom_fitx %s\n", nom_fitx);
-    
 
     /* URIs amb #port, p.e., esq://host:port/fitx, 4 valors assignats */
     if (nassignats == 4)

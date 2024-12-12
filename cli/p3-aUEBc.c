@@ -42,8 +42,6 @@ int RepiDesconstMis(int SckCon, char *tipus, char *info1, int *long1);
 /* En termes de capes de l'aplicació, aquest conjunt de funcions externes */
 /* formen la interfície de la capa UEB, en la part client.                */
 
-
-
 /* Crea un socket TCP "client" en una @IP i #port TCP local qualsevol, a  */
 /* través del qual demana una connexió a un S UEB que escolta peticions   */
 /* al socket TCP "servidor" d'@IP "IPser" i #portTCP "portTCPser".        */
@@ -60,15 +58,17 @@ int RepiDesconstMis(int SckCon, char *tipus, char *info1, int *long1);
 int UEBc_DemanaConnexio(const char *IPser, int portTCPser, char *TextRes)
 {
     int CodiRes;
-	int sck = TCP_CreaSockClient("0.0.0.0", 0);
-    
-    if(sck == -1){
+    int sck = TCP_CreaSockClient("0.0.0.0", 0);
+
+    if (sck == -1)
+    {
         sprintf(TextRes, "TCP_CreaSockClient(): %s", T_ObteTextRes(&CodiRes));
         return -1;
-    } 
-    
+    }
+
     int res = TCP_DemanaConnexio(sck, IPser, portTCPser);
-    if(res == -1){
+    if (res == -1)
+    {
         sprintf(TextRes, "TCP_DemanaConnexio(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
@@ -97,16 +97,18 @@ int UEBc_DemanaConnexio(const char *IPser, int portTCPser, char *TextRes)
 /* -3 si l'altra part tanca la connexió.                                  */
 int UEBc_ObteFitxer(int SckCon, const char *NomFitx, char *Fitx, int *LongFitx, char *TextRes)
 {
-	int CodiRes;
+    int CodiRes;
     char nomFitxAux[200];
-    memcpy(nomFitxAux, NomFitx, strlen(NomFitx)-1);
+    memcpy(nomFitxAux, NomFitx, strlen(NomFitx) - 1);
     // Envia la petició amb el tipus "OBT" per demanar el fitxer
     int res = ConstiEnvMis(SckCon, "OBT", NomFitx, strlen(NomFitx));
-    if(res == -1){
+    if (res == -1)
+    {
         sprintf(TextRes, "TCP_Envia(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
-    else if(res == -2){
+    else if (res == -2)
+    {
         sprintf(TextRes, "Protocol incorrecte.");
         return -2;
     }
@@ -117,38 +119,46 @@ int UEBc_ObteFitxer(int SckCon, const char *NomFitx, char *Fitx, int *LongFitx, 
     int long1;
 
     int res2 = RepiDesconstMis(SckCon, tipus, info1, &long1);
-    if(res2 == -1){
+    if (res2 == -1)
+    {
         sprintf(TextRes, "TCP_Rep(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
-    else if(res2 == -2){
+    else if (res2 == -2)
+    {
         sprintf(TextRes, "Protocol incorrecte.");
         return -2;
     }
-    else if(res2 == -3){
+    else if (res2 == -3)
+    {
         sprintf(TextRes, "El servidor ha tancat la connexió.");
         return -3;
     }
-    
+
     memcpy(Fitx, info1, long1);
     *LongFitx = long1;
-    if(compara_vectors(tipus, "COR", 3) == 0) {
+    if (compara_vectors(tipus, "COR", 3) == 0)
+    {
         // El fitxer existeix al servidor
         sprintf(TextRes, "Tot bé, el fitxer existeix al servidor\0");
         return 0;
     }
-    else{
+    else
+    {
         // El fitxer no existeix al servidor
-        if(compara_vectors(info1, "fitxer no comença per /", 23) == 0){
+        if (compara_vectors(info1, "fitxer no comença per /", 23) == 0)
+        {
             sprintf(TextRes, "Error, fitxer no comença per /\0");
         }
-        else if(compara_vectors(info1, "1 fitxer no trobat", 18) == 0){
+        else if (compara_vectors(info1, "1 fitxer no trobat", 18) == 0)
+        {
             sprintf(TextRes, "Tot bé, el fitxer no existeix al servidor\0");
         }
-        else{
+        else
+        {
             sprintf(TextRes, "Error, el fitxer solicitat és massa gran\0");
         }
-        
+
         return 1;
     }
 }
@@ -166,7 +176,8 @@ int UEBc_TancaConnexio(int SckCon, char *TextRes)
 {
     int CodiRes;
     int res = TCP_TancaSock(SckCon);
-	if(res == -1){
+    if (res == -1)
+    {
         sprintf(TextRes, "TCP_TancaSock(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
@@ -196,12 +207,14 @@ int UEBc_TrobaAdrSckConnexio(int SckCon, char *IPloc, int *portTCPloc, char *IPr
     int res1 = TCP_TrobaAdrSockLoc(SckCon, IPloc, portTCPloc);
     int res2 = TCP_TrobaAdrSockRem(SckCon, IPrem, portTCPrem);
 
-    if((res1 == -1)){
+    if ((res1 == -1))
+    {
         sprintf(TextRes, "TCP_TrobaAdrSockLoc(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
 
-    if((res2 == -1)){
+    if ((res2 == -1))
+    {
         sprintf(TextRes, "TCP_TrobaAdrSockRem(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
@@ -210,13 +223,12 @@ int UEBc_TrobaAdrSckConnexio(int SckCon, char *IPloc, int *portTCPloc, char *IPr
     return 0;
 }
 
-
 /* Si ho creieu convenient, feu altres funcions EXTERNES                  */
 
 /* Descripció de la funció, dels arguments, valors de retorn, etc.        */
 /* int UEBc_FuncioExterna(arg1, arg2...)
 {
-	
+
 } */
 
 /* Definició de funcions INTERNES, és a dir, d'aquelles que es faran      */
@@ -226,10 +238,8 @@ int UEBc_TrobaAdrSckConnexio(int SckCon, char *IPloc, int *portTCPloc, char *IPr
 /* Descripció de la funció, dels arguments, valors de retorn, etc.        */
 /* int FuncioInterna(arg1, arg2...)
 {
-	
+
 } */
-
-
 
 /* "Construeix" un missatge de PUEB a partir dels seus camps tipus,       */
 /* long1 i info1, escrits, respectivament a "tipus", "long1" i "info1"    */
@@ -249,7 +259,8 @@ int ConstiEnvMis(int SckCon, const char *tipus, const char *info1, int long1)
 {
     // Ajuntar missatge PUEB
     char SeqBytes[10006];
-    if((long1 > 9999) || (compara_vectors(tipus, "OBT", 3) == 1)){
+    if ((long1 > 9999) || (compara_vectors(tipus, "OBT", 3) == 1))
+    {
         return -2;
     }
 
@@ -257,11 +268,12 @@ int ConstiEnvMis(int SckCon, const char *tipus, const char *info1, int long1)
     sprintf(longAux, "%.4d", long1);
 
     memcpy(SeqBytes, tipus, 3);
-    memcpy(SeqBytes+3, longAux, 4);
-    memcpy(SeqBytes+7, info1, long1);
+    memcpy(SeqBytes + 3, longAux, 4);
+    memcpy(SeqBytes + 7, info1, long1);
 
     // Envia missatge
-    if(TCP_Envia(SckCon, SeqBytes, 3+4+long1) == -1){
+    if (TCP_Envia(SckCon, SeqBytes, 3 + 4 + long1) == -1)
+    {
         return -1;
     }
 
@@ -286,29 +298,34 @@ int ConstiEnvMis(int SckCon, const char *tipus, const char *info1, int long1)
 int RepiDesconstMis(int SckCon, char *tipus, char *info1, int *long1)
 {
     // Desglossa missatge PUEB
-	char SeqBytes[10006];
+    char SeqBytes[10006];
     int bytesRebuts = TCP_Rep(SckCon, SeqBytes, sizeof(SeqBytes));
-    
-    if(bytesRebuts == -1){
+
+    if (bytesRebuts == -1)
+    {
         return -1;
     }
-    else if(bytesRebuts == 0){
-        return -3;  
+    else if (bytesRebuts == 0)
+    {
+        return -3;
     }
-    else{
+    else
+    {
         memcpy(tipus, SeqBytes, 3);
 
         char longAux[4];
-        memcpy(longAux, SeqBytes+3, 4);
+        memcpy(longAux, SeqBytes + 3, 4);
         *long1 = atoi(longAux);
 
-        if((bytesRebuts < 8) || (compara_vectors(tipus, "OBT", 3) == 0) || ((bytesRebuts - 7) != *long1)){
+        if ((bytesRebuts < 8) || (compara_vectors(tipus, "OBT", 3) == 0) || ((bytesRebuts - 7) != *long1))
+        {
             return -2;
         }
-        else{
-            memcpy(info1, SeqBytes+7, *long1);
+        else
+        {
+            memcpy(info1, SeqBytes + 7, *long1);
             return 0;
-        } 
+        }
     }
 }
 
@@ -317,12 +334,15 @@ int RepiDesconstMis(int SckCon, char *tipus, char *info1, int *long1)
 /* Retorna:                                                               */
 /*  0 son iguals                                                          */
 /*  1 no son iguals                                                       */
-int compara_vectors(const char *vec1, const char *vec2, int mida) {
+int compara_vectors(const char *vec1, const char *vec2, int mida)
+{
     int i;
-    for (i = 0; i < mida; i++) {
-        if (vec1[i] != vec2[i]) {
-            return 1;  // Si alguna posició és diferent, retorna false
+    for (i = 0; i < mida; i++)
+    {
+        if (vec1[i] != vec2[i])
+        {
+            return 1; // Si alguna posició és diferent, retorna false
         }
     }
-    return 0;  // Si no hi ha cap diferència, retorna true
+    return 0; // Si no hi ha cap diferència, retorna true
 }

@@ -25,5 +25,3 @@ int UEBs_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, c
 /* int UEBs_FuncioExterna(arg1, arg2...);                                 */
 
 int compara_vectors(const char *vec1, const char *vec2, int mida);
-
-

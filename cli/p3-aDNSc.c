@@ -58,7 +58,7 @@ int DNSc_ResolDNSaIP(const char *NomDNS, char *IP, char *TextRes)
 
     /* Es fa la petició de resolució DNS */
     dadesHOST = gethostbyname(NomDNS);
-    if(dadesHOST == NULL)
+    if (dadesHOST == NULL)
     {
         sprintf(TextRes, "gethostbyname(): %s", hstrerror(errno));
         return -1;
@@ -66,8 +66,8 @@ int DNSc_ResolDNSaIP(const char *NomDNS, char *IP, char *TextRes)
     else
     {
         adrHOST.s_addr = *((unsigned long *)dadesHOST->h_addr_list[0]);
-        strcpy(IP,(char*)inet_ntoa(adrHOST));
-        sprintf(TextRes,"Tot bé");
+        strcpy(IP, (char *)inet_ntoa(adrHOST));
+        sprintf(TextRes, "Tot bé");
         return 0;
     }
 }
@@ -77,7 +77,7 @@ int DNSc_ResolDNSaIP(const char *NomDNS, char *IP, char *TextRes)
 /* Descripció de la funció, dels arguments, valors de retorn, etc.        */
 /* int DNSc_FuncioExterna(arg1, arg2...)
 {
-	
+
 } */
 
 /* Definició de funcions INTERNES, és a dir, d'aquelles que es faran      */
@@ -87,6 +87,5 @@ int DNSc_ResolDNSaIP(const char *NomDNS, char *IP, char *TextRes)
 /* Descripció de la funció, dels arguments, valors de retorn, etc.        */
 /* int FuncioInterna(arg1, arg2...)
 {
-	
-} */
 
+} */

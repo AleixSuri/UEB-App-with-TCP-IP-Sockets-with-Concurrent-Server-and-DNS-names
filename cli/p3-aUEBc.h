@@ -15,7 +15,7 @@
 /* així les funcions seran conegudes en ell.                              */
 /* En termes de capes de l'aplicació, aquest conjunt de funcions          */
 /* EXTERNES formen la interfície de la capa UEB, en la part client.       */
- 
+
 int UEBc_DemanaConnexio(const char *IPser, int portTCPser, char *TextRes);
 int UEBc_ObteFitxer(int SckCon, const char *NomFitx, char *Fitx, int *LongFitx, char *TextRes);
 int UEBc_TancaConnexio(int SckCon, char *TextRes);
