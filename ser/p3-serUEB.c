@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    for (int i = 0; i < LongLlistaSck; i++)
+    int i; 
+    for (i = 0; i < LongLlistaSck; i++)
         LlistaSck[i] = -1;
 
     // Inicia Servidor
@@ -307,18 +308,18 @@ int LlegirFitxerCFG(int *fileLog, int *portTCP, int *maxConTCP)
         if (sscanf(linia, "%s %s", opcio, valor) != 2)
         {
             printf("Format del fitxer cfg incorrecte.\n");
-            dprintf(fileLog, "Format del fitxer cfg incorrecte.\n");
+            dprintf(*fileLog, "Format del fitxer cfg incorrecte.\n");
             return -1;
         }
 
         // Comprovar l'opció que estem llegint
         if (strcmp(opcio, "#portTCP") == 0)
         {
-            portTCP = atoi(valor);
+            *portTCP = atoi(valor);
         }
         else if (strcmp(opcio, "#maxconTCP") == 0)
         {
-            maxConTCP = atoi(valor);
+            *maxConTCP = atoi(valor);
         }
         // else if (strcmp(opcio, "#Arrel") == 0) {
         //     strncpy(arrelUEB, valor, sizeof(arrelUEB) - 1);

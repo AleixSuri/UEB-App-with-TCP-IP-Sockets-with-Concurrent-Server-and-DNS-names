@@ -365,7 +365,7 @@ int UEBs_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, c
     }
     if (socket == -2)
     {
-        sprintf(TextRes, "TimeOut: %s");
+        sprintf(TextRes, "TimeOut:");
         return -1;
     }
 
