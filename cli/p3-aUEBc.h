@@ -4,7 +4,7 @@
 /* Fitxer capçalera de aUEBc.c                                            */
 /*                                                                        */
 /* Autors: Arnau Herrera i Aleix Suriñach                                 */
-/* Data: novembre 2024                                                    */
+/* Data: desembre 2024                                                    */
 /*                                                                        */
 /**************************************************************************/
 

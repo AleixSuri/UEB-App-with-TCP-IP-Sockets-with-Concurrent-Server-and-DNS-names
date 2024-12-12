@@ -6,7 +6,7 @@
 /* capa TCP o "nova" interfície de sockets TCP), en la part servidora.    */
 /*                                                                        */
 /* Autors: Arnau Herrera i Aleix Suriñach                                 */
-/* Data: novembre 2024                                                    */
+/* Data: desembre 2024                                                    */
 /*                                                                        */
 /**************************************************************************/
 

@@ -7,7 +7,7 @@
 /* "nova" interfície de la capa DNS, en la part client.                   */
 /*                                                                        */
 /* Autors: Arnau Herrera i Aleix Suriñach                                 */
-/* Data: novembre 2024                                                    */
+/* Data: desembre 2024                                                    */
 /*                                                                        */
 /**************************************************************************/
 
@@ -61,12 +61,14 @@ int DNSc_ResolDNSaIP(const char *NomDNS, char *IP, char *TextRes)
     if(dadesHOST == NULL)
     {
         sprintf(TextRes, "gethostbyname(): %s", hstrerror(errno));
+        return -1;
     }
     else
     {
         adrHOST.s_addr = *((unsigned long *)dadesHOST->h_addr_list[0]);
         strcpy(IP,(char*)inet_ntoa(adrHOST));
         sprintf(TextRes,"Tot bé");
+        return 0;
     }
 }
 

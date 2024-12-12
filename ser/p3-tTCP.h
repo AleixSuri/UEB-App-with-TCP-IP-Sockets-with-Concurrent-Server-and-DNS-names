@@ -4,7 +4,7 @@
 /* Fitxer capçalera de tTCP.c                                             */
 /*                                                                        */
 /* Autors: Arnau Herrera i Aleix Suriñach                                 */
-/* Data: octubre 2024                                                     */
+/* Data: desembre 2024                                                    */
 /*                                                                        */
 /**************************************************************************/
 

@@ -7,7 +7,7 @@
 /* interfície de sockets TCP.                                             */
 /*                                                                        */
 /* Autors: Arnau Herrera i Aleix Suriñach                                 */
-/* Data: octubre 2024                                                     */
+/* Data: desembre 2024                                                    */
 /*                                                                        */
 /**************************************************************************/
 
@@ -259,5 +259,39 @@ char* T_ObteTextRes(int *CodiRes)
 /*  -2 si passa "Temps" sense que arribi res.                             */
 int T_HaArribatAlgunaCosaPerLlegir(const int *LlistaSck, int LongLlistaSck, int Temps)
 {
-	
+		fd_set sockets;
+    FD_ZERO(&sockets);
+    int fdmax = 0;
+
+	// Trobar skc valor més gran
+    for (int i = 0; i < LongLlistaSck; i++) {
+        int sck = LlistaSck[i];
+        
+		if (sck != -1) FD_SET(sck, &sockets); // Marcar socket
+		if (sck > fdmax) fdmax = sck;
+    }
+
+	// A partir de Temps [ms] s’emplena una variable struct timeval amb el temps en [s] i [µs]
+	struct timeval _timeval;
+    _timeval.tv_sec = Temps / 1000;
+    _timeval.tv_usec = Temps * 1000;
+
+	// Es crida a select() per escoltar si ha arribat alguna cosa per ser llegida en algun sck id
+	int socketSeleccionat = select(maxfd+1, &sockets, NULL, NULL, Temps == -1 ? NULL : &_timeval);
+	if (socketSeleccionat == -1) { // Error
+		return -1;
+	}
+	else if (socketSeleccionat == 0) { // Temps expirat
+		return -2;
+	}
+	else { // Retornar socket demanat
+		int i = 0, acabat = 0;
+		while (i < LongLlistaSck && acabat != 1) {
+			if (LlistaSck[i] != -1 && FD_ISSET(LlistaSck[i], &sockets)) {
+                acabat = 1;
+            }
+			if (acabat != 1) i++;
+		}
+		return LlistaSck[i];
+	}
 }
