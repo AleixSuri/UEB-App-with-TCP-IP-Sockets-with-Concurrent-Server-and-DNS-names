@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
         }
 
         // Demana connexio
-        if (sckCon = UEBc_DemanaConnexio(IPser, portTCPser, TextRes) == -1)
+        if ((sckCon = UEBc_DemanaConnexio(IPser, portTCPser, TextRes)) == -1)
         {
             printf("UEBc_DemanaConnexio(): %s\n", TextRes);
             exit(-1);

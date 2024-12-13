@@ -133,11 +133,9 @@ int main(int argc, char *argv[])
         }
         else if (socketAux == 0)
         { // Tancar Servidor
-            printf("Vols tancar el servidor? (si/no)\n");
             int nBytes = read(0, buffer, sizeof(buffer));
-            buffer[nBytes - 1] = '\0';
 
-            if (strcmp(buffer, "si") == 0)
+            if (nBytes > 0)
             {
                 printf("Tancant servidor...\n");
                 dprintf(fileLog, "Tancant servidor...\n");
