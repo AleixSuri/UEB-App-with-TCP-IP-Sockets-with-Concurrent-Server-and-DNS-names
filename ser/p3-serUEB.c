@@ -33,7 +33,6 @@
 
 int AfegeixSck(int Sck, int *LlistaSck, int LongLlistaSck);
 int TreuSck(int Sck, int *LlistaSck, int LongLlistaSck);
-int LlegirFitxerCFG(int *fileLog, int *port, int *maxConTCP);
 /* int FuncioInterna(arg1, arg2...);                                      */
 
 int main(int argc, char *argv[])
@@ -41,6 +40,8 @@ int main(int argc, char *argv[])
     /* Declaració de variables, p.e., int n;                                 */
     char buffer[300];
     char TextRes[300];
+    char linia[50], opcio[20], valor[20];
+    FILE *fp;
     int sck;
     int portTCP;
     int maxConTCP;
@@ -58,11 +59,38 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    if (LlegirFitxerCFG(&fileLog, &portTCP, &maxConTCP) == -1)
+    // Llegir fitxer config
+    fp = fopen("p3-serUEB.cfg", "r");
+    if (fp == NULL)
     {
+        perror("Error en obrir el fitxer de configuració.\n");
         exit(-1);
     }
 
+    while (fgets(linia, sizeof(linia), fp) != NULL)
+    {
+        if (sscanf(linia, "%s %s", opcio, valor) != 2)
+        {
+            printf("Format del fitxer cfg incorrecte.\n");
+            dprintf(fileLog, "Format del fitxer cfg incorrecte.\n");
+            return -1;
+        }
+
+        // Comprovar l'opció que estem llegint
+        if (strcmp(opcio, "#portTCP") == 0)
+        {
+            portTCP = atoi(valor);
+        }
+        if (strcmp(opcio, "#maxconTCP") == 0)
+        {
+            maxConTCP = atoi(valor);
+        }
+        // else if (strcmp(opcio, "#Arrel") == 0) {
+        //     strncpy(arrelUEB, valor, sizeof(arrelUEB) - 1);
+        // }
+    }
+
+    // Preparar llista sockets
     LongLlistaSck = 2 + maxConTCP; // Socket d'escolta + maxim de connexions
     LlistaSck = (int *)malloc(LongLlistaSck * sizeof(int));
 
@@ -218,10 +246,13 @@ int AfegeixSck(int Sck, int *LlistaSck, int LongLlistaSck)
     int index = 0, trobat = 0;
     while (index < LongLlistaSck && !trobat)
     {
-        if (LlistaSck[index] != -1)
-            index++;
-        else
+        if (LlistaSck[index] == -1)
+        {
+            // Posició trobada
+            LlistaSck[index] = Sck;
             trobat++;
+        }
+        index++;
     }
 
     // Si arriba al final del vector Error
@@ -229,9 +260,6 @@ int AfegeixSck(int Sck, int *LlistaSck, int LongLlistaSck)
     {
         return -1;
     }
-
-    // Posició trobada
-    LlistaSck[index] = Sck;
 
     return 0;
 }
@@ -252,10 +280,13 @@ int TreuSck(int Sck, int *LlistaSck, int LongLlistaSck)
     int index = 0, trobat = 0;
     while (index < LongLlistaSck && !trobat)
     {
-        if (LlistaSck[index] != Sck)
-            index++;
-        else
+        if (LlistaSck[index] == Sck)
+        {
+            // Posició trobada
+            LlistaSck[index] = -1;
             trobat++;
+        }
+        index++;
     }
 
     // Si arriba al final del vector Error
@@ -264,50 +295,5 @@ int TreuSck(int Sck, int *LlistaSck, int LongLlistaSck)
         return -1;
     }
 
-    // Posició trobada
-    LlistaSck[index] = -1;
-
     return 0;
-}
-
-/* Llegeix el fitxer de configuracio p3-serUEB.cfg i omple els            */
-/* corresponents parametres                                               */
-/*                                                                        */
-/* Retorna:                                                               */
-/*  0 si tot va bé;                                                       */
-/* -1 si hi ha error.                                                     */
-int LlegirFitxerCFG(int *fileLog, int *portTCP, int *maxConTCP)
-{
-    // Llegir fitxer config
-    char linia[50], opcio[20], valor[20];
-    FILE *fp;
-    fp = fopen("p3-serUEB.cfg", "r");
-    if (fp == NULL)
-    {
-        printf("Error en obrir el fitxer de configuració.\n");
-        return -1;
-    }
-
-    while (fgets(linia, sizeof(linia), fp) != NULL)
-    {
-        if (sscanf(linia, "%s %s", opcio, valor) != 2)
-        {
-            printf("Format del fitxer cfg incorrecte.\n");
-            dprintf(*fileLog, "Format del fitxer cfg incorrecte.\n");
-            return -1;
-        }
-
-        // Comprovar l'opció que estem llegint
-        if (strcmp(opcio, "#portTCP") == 0)
-        {
-            *portTCP = atoi(valor);
-        }
-        else if (strcmp(opcio, "#maxconTCP") == 0)
-        {
-            *maxConTCP = atoi(valor);
-        }
-        // else if (strcmp(opcio, "#Arrel") == 0) {
-        //     strncpy(arrelUEB, valor, sizeof(arrelUEB) - 1);
-        // }
-    }
 }

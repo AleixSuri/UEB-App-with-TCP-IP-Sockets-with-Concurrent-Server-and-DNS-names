@@ -157,7 +157,7 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
     char arrelUEB[200] = {0};
     char linia[50], opcio[30], valor[40];
     FILE *fp;
-    fp = fopen("p2-serUEB.cfg", "r");
+    fp = fopen("p3-serUEB.cfg", "r");
     if (fp == NULL)
     {
         perror("Error en obrir el fitxer de configuració.\n");
