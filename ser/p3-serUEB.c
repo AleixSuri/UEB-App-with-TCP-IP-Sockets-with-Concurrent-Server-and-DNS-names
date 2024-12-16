@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
     AfegeixSck(sck, LlistaSck, LongLlistaSck); // Socket d'escolta
 
     // Bucle per esperar i rebre peticions
-    while (1)
+    int acabar = 0;
+    while (!acabar)
     {
         int socketAux = UEBs_HaArribatAlgunaCosaPerLlegir(LlistaSck, LongLlistaSck, TextRes);
         if (socketAux == -1)
@@ -167,7 +168,7 @@ int main(int argc, char *argv[])
             {
                 printf("Tancant servidor...\n");
                 dprintf(fileLog, "Tancant servidor...\n");
-                break;
+                acabar = 1;
             }
         }
         else
