@@ -207,13 +207,13 @@ int UEBc_TrobaAdrSckConnexio(int SckCon, char *IPloc, int *portTCPloc, char *IPr
     int res1 = TCP_TrobaAdrSockLoc(SckCon, IPloc, portTCPloc);
     int res2 = TCP_TrobaAdrSockRem(SckCon, IPrem, portTCPrem);
 
-    if ((res1 == -1))
+    if (res1 == -1)
     {
         sprintf(TextRes, "TCP_TrobaAdrSockLoc(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
 
-    if ((res2 == -1))
+    if (res2 == -1)
     {
         sprintf(TextRes, "TCP_TrobaAdrSockRem(): %s", T_ObteTextRes(&CodiRes));
         return -1;

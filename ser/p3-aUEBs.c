@@ -187,8 +187,8 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
     { // No comença per /
         sprintf(TextRes, "El nom del fitxer ha de començar amb '/'");
         memcpy(tipusEnv, "ERR", 3);
-        longEnv = (int)strlen("fitxer no comença per /\0");
-        memcpy(infoEnv, "fitxer no comença per /", longEnv);
+        longEnv = (int)strlen("3 fitxer no comença per /\0");
+        memcpy(infoEnv, "3 fitxer no comença per /", longEnv);
 
         file = -4;
     }
@@ -224,8 +224,8 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
             {
                 sprintf(TextRes, "Fitxer massa gran per ser enviat.");
                 memcpy(tipusEnv, "ERR", 3);
-                longEnv = (int)strlen("fitxer massa gran\0");
-                memcpy(infoEnv, "fitxer massa gran", longEnv);
+                longEnv = (int)strlen("2 fitxer massa gran\0");
+                memcpy(infoEnv, "2 fitxer massa gran", longEnv);
                 file = -4;
             }
             else
@@ -324,13 +324,13 @@ int UEBs_TrobaAdrSckConnexio(int SckCon, char *IPloc, int *portTCPloc, char *IPr
     int res1 = TCP_TrobaAdrSockLoc(SckCon, IPloc, portTCPloc);
     int res2 = TCP_TrobaAdrSockRem(SckCon, IPrem, portTCPrem);
 
-    if ((res1 == -1))
+    if (res1 == -1)
     {
         sprintf(TextRes, "TCP_TrobaAdrSockLoc(): %s", T_ObteTextRes(&CodiRes));
         return -1;
     }
 
-    if ((res2 == -1))
+    if (res2 == -1)
     {
         sprintf(TextRes, "TCP_TrobaAdrSockRem(): %s", T_ObteTextRes(&CodiRes));
         return -1;

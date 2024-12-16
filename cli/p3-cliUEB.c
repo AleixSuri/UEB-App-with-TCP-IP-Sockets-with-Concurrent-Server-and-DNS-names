@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
         char Fitx[MAX_FITX];
         int LongFitx;
 
+        //
         printf("Entra l'URI del lloc UEB: \n");
         scanf("%s", uri);
 
@@ -70,8 +71,14 @@ int main(int argc, char *argv[])
         {
             portTCPser = PORT_X_DEFECTE;
         }
+        NomFitx[strlen(NomFitx)] = '\0';
 
-        // Comprovar TOT EL QUE HA DESCOMPOSAT
+        if (strcmp(esq, "pueb\0") != 0)
+        {
+            printf("ERROR: no es correcte el format de l'URI\n");
+            printf("pueb://[nomDNS]{:[port] o res}/...\n");
+            exit(-1);
+        }
 
         // Trobar servidor
         if (DNSc_ResolDNSaIP(host, IPser, TextRes) == -1)
@@ -166,7 +173,7 @@ int main(int argc, char *argv[])
             // Tornar a demanar?
             printf("\n\nVols obtenir un fitxer o acabar? (1-Obtenir, 0-Acabar):\n");
             scanf("%d", &op);
-            if (op != 0 && op == 1)
+            if (op == 1)
             {
                 // Netejar variables i demanar informacio
                 char IPserAux[16];
@@ -186,8 +193,14 @@ int main(int argc, char *argv[])
                 {
                     portTCPser = PORT_X_DEFECTE;
                 }
+                NomFitx[strlen(NomFitx)] = '\0';
 
-                // Comprovar TOT EL QUE HA DESCOMPOSAT
+                if (strcmp(esq, "pueb\0") != 0)
+                {
+                    printf("ERROR: no es correcte el format de l'URI\n");
+                    printf("pueb://[nomDNS]{:[port] o res}/...\n");
+                    exit(-1);
+                }
 
                 // Trobar servidor
                 if (DNSc_ResolDNSaIP(host, IPser, TextRes) == -1)
@@ -211,14 +224,13 @@ int main(int argc, char *argv[])
                         exit(-1);
                     }
                 }
-
-                // Tanca connexio
-                if (UEBc_TancaConnexio(sckCon, TextRes) == -1)
-                {
-                    printf("UEBc_TancaConnexio(): %s", TextRes);
-                    exit(-1);
-                }
             }
+        }
+        // Tanca connexio
+        if (UEBc_TancaConnexio(sckCon, TextRes) == -1)
+        {
+            printf("UEBc_TancaConnexio(): %s", TextRes);
+            exit(-1);
         }
     }
 }

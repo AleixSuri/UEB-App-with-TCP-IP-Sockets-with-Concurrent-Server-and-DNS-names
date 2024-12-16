@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
     }
     printf("%s\nLimit de connexions simultanies: %d\n\n", TextRes, maxConTCP);
 
+    AfegeixSck(0, LlistaSck, LongLlistaSck);   // Socket de teclat
     AfegeixSck(sck, LlistaSck, LongLlistaSck); // Socket d'escolta
 
     // Bucle per esperar i rebre peticions
@@ -118,8 +119,8 @@ int main(int argc, char *argv[])
             }
 
             if (AfegeixSck(sckCon, LlistaSck, LongLlistaSck) == -1)
-            {                                        // Si l'ha acceptat però no hi ha prou espai a la llista
-                UEBs_TancaConnexio(sckCon, TextRes); // Opció 1: fer close()
+            { // Si l'ha acceptat però no hi ha prou espai a la llista
+                UEBs_TancaConnexio(sckCon, TextRes);
                 printf("UEBc_TancaConnexio(): %s\n", TextRes);
                 dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
             }
@@ -140,8 +141,8 @@ int main(int argc, char *argv[])
 
             if (nBytes > 0)
             {
-                printf("Tancant servidor...\n");
-                dprintf(fileLog, "Tancant servidor...\n");
+                printf("\nTancant servidor...\n\n");
+                dprintf(fileLog, "\nTancant servidor...\n\n");
                 acabar = 1;
             }
         }
@@ -154,28 +155,47 @@ int main(int argc, char *argv[])
             int bytesEnviats;
             int servPet = UEBs_ServeixPeticio(socketAux, TipusPeticio, NomFitx, TextRes, TextTemps);
 
-            // Client tanca connexio
-            if (servPet != -3)
+            if (servPet == -3)
+            { // Client tanca connexio
+                char IPlocAUX[16];
+                int portTCPlocAUX;
+                char IPremAUX[16];
+                int portTCPremAUX;
+                if (UEBs_TrobaAdrSckConnexio(socketAux, IPlocAUX, &portTCPlocAUX, IPremAUX, &portTCPremAUX, TextRes) == -1)
+                {
+                    printf("UEBc_TrobaAdrSckConnexio(): %s\n", TextRes);
+                    dprintf(fileLog, "UEBc_TrobaAdrSckConnexio(): %s\n", TextRes);
+                    exit(-1);
+                }
+
+                printf(">El client amb @sck %s:%d s'ha desconnectat.\n\n", IPremAUX, portTCPremAUX);
+                dprintf(fileLog, ">El client amb @sck %s:%d s'ha desconnectat.\n\n", IPremAUX, portTCPremAUX);
+
+                if (TreuSck(socketAux, LlistaSck, LongLlistaSck) == -1)
+                {
+                    UEBs_TancaConnexio(socketAux, TextRes);
+                    printf("UEBc_TancaConnexio(): %s\n", TextRes);
+                    dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
+                    exit(-1);
+                }
+            }
+            else
             {
                 printf("Petició %s del fitxer %s\n", TipusPeticio, NomFitx);
                 dprintf(fileLog, "Petició %s del fitxer %s\n", TipusPeticio, NomFitx);
-            }
 
-            printf("UEBc_ServeixPeticio(): %s\n\n", TextRes);
-            dprintf(fileLog, "UEBc_ServeixPeticio(): %s\n\n", TextRes);
+                printf("UEBc_ServeixPeticio(): %s\n\n", TextRes);
+                dprintf(fileLog, "UEBc_ServeixPeticio(): %s\n\n", TextRes);
 
-            // Errors
-            if (servPet == -1 || servPet == -2)
-            {
-                exit(-1);
-            }
-
-            // Tot correcte
-            if (servPet == 0 || servPet == 1 || servPet == -4)
-            {
-                // Mostrar el temps
-                printf("%s\n", TextTemps);
-                dprintf(fileLog, "%s\n", TextTemps);
+                // Tot correcte
+                if (servPet == 0 || servPet == 1 || servPet == -4)
+                {
+                    // Mostrar el temps
+                    printf("%s\n", TextTemps);
+                    dprintf(fileLog, "%s\n", TextTemps);
+                }
+                else
+                    exit(-1); // ERRORS
             }
         }
     }
@@ -186,9 +206,12 @@ int main(int argc, char *argv[])
     {
         if (LlistaSck[k] != 0 && LlistaSck[k] != -1)
         {
-            UEBs_TancaConnexio(LlistaSck[k], TextRes);
-            printf("UEBc_TancaConnexio(): %s\n", TextRes);
-            dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
+            if (UEBs_TancaConnexio(LlistaSck[k], TextRes) == -1)
+            {
+                printf("UEBc_TancaConnexio(): %s\n", TextRes);
+                dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
+                exit(-1);
+            }
         }
     }
 
