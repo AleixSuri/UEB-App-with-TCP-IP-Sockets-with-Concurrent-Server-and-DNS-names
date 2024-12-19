@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/* Fa tota la gestió per obtenir, mostrar i guardar el fitxer demanat     */
 void controlarPeticio(int sckCon, char *IPser, int portTCPser, char *NomFitx)
 {
     char TextRes[300];
@@ -191,6 +192,8 @@ void controlarPeticio(int sckCon, char *IPser, int portTCPser, char *NomFitx)
     }
 }
 
+/* Obte el fitxer demanat de nom NomFitx, omplint Fitx i LongFitx,        */
+/* el contingut i la mida d'aquest respectivament                         */
 void obtenirFitxer(int sckCon, char *NomFitx, char *Fitx, int *LongFitx, char *TextRes)
 {
     char nomAux[200];
@@ -213,6 +216,9 @@ void obtenirFitxer(int sckCon, char *NomFitx, char *Fitx, int *LongFitx, char *T
     }
 }
 
+/* Desa el fitxer de nom NomFitx, amb contingut Fitx i de mida LongFitx   */
+/* al directori on s'està executant el client                             */
+/* si ja existeix, es sobreescriu, si no es crea                          */
 void guardarFitxer(char *NomFitx, char *Fitx, int LongFitx)
 {
     char nomFitxer[200];
@@ -245,6 +251,7 @@ void guardarFitxer(char *NomFitx, char *Fitx, int LongFitx)
     }
 }
 
+/* Mostra el fitxer de contingut Fitx i mida LongFitx                     */
 void mostrarFitxer(char *Fitx, int LongFitx)
 {
     if (write(1, Fitx, LongFitx) == -1)
@@ -254,6 +261,7 @@ void mostrarFitxer(char *Fitx, int LongFitx)
     }
 }
 
+/* Mostra el temps des de l'inici (start) fins el final (end)             */
 void mostrarTemps(struct timespec start, struct timespec end)
 {
     long seconds = end.tv_sec - start.tv_sec;

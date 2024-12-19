@@ -329,6 +329,7 @@ int LlegirFitxerCFG(int *fileLog, int *portTCP, int *maxConTCP)
     }
 }
 
+/* Tanca les connexions del sockets abans de tancar el servidor           */
 void tancarConnexions(int *LlistaSck, int LongLlistaSck, int fileLog, char *TextRes)
 {
     // Tanca connexions
