@@ -34,6 +34,8 @@
 int AfegeixSck(int Sck, int *LlistaSck, int LongLlistaSck);
 int TreuSck(int Sck, int *LlistaSck, int LongLlistaSck);
 int LlegirFitxerCFG(int *fileLog, int *port, int *maxConTCP);
+void tancarConnexions(int *LlistaSck, int LongLlistaSck, int fileLog, char *TextRes);
+
 /* int FuncioInterna(arg1, arg2...);                                      */
 
 int main(int argc, char *argv[])
@@ -91,6 +93,8 @@ int main(int argc, char *argv[])
     AfegeixSck(sck, LlistaSck, LongLlistaSck); // Socket d'escolta
 
     // Bucle per esperar i rebre peticions
+    void gestionarPeticions(int sck, int *LlistaSck, int LongLlistaSck, int fileLog, char *TextRes);
+
     int acabar = 0;
     while (!acabar)
     {
@@ -118,22 +122,25 @@ int main(int argc, char *argv[])
                 exit(-1);
             }
 
-            if (AfegeixSck(sckCon, LlistaSck, LongLlistaSck) == -1)
-            { // Si l'ha acceptat però no hi ha prou espai a la llista
+            int afegirSck = AfegeixSck(sckCon, LlistaSck, LongLlistaSck);
+            if (afegirSck == -1)
+            { // Si l'ha acceptat però no hi ha prou espai a la llista el servidor tanca la connexio d'aquell socket
                 UEBs_TancaConnexio(sckCon, TextRes);
-                printf("UEBc_TancaConnexio(): %s\n", TextRes);
-                dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
+                printf("UEBs_TancaConnexio(): %s\n", TextRes);
+                dprintf(fileLog, "UEBs_TancaConnexio(): %s\n", TextRes);
             }
-
-            // Mostrar @sockets
-            if (UEBs_TrobaAdrSckConnexio(sckCon, IPloc, &portTCPloc, IPrem, &portTCPrem, TextRes) == -1)
+            else
             {
-                printf("UEBc_TrobaAdrSckConnexio(): %s\n", TextRes);
-                dprintf(fileLog, "UEBc_TrobaAdrSckConnexio(): %s\n", TextRes);
-                exit(-1);
+                // Mostrar @sockets
+                if (UEBs_TrobaAdrSckConnexio(sckCon, IPloc, &portTCPloc, IPrem, &portTCPrem, TextRes) == -1)
+                {
+                    printf("UEBc_TrobaAdrSckConnexio(): %s\n", TextRes);
+                    dprintf(fileLog, "UEBc_TrobaAdrSckConnexio(): %s\n", TextRes);
+                    exit(-1);
+                }
+                printf("Connexió TCP @sck ser %s:%d @sck cli %s:%d\n", IPloc, portTCPloc, IPrem, portTCPrem);
+                dprintf(fileLog, "Connexió TCP @sck ser %s:%d @sck cli %s:%d\n", IPloc, portTCPloc, IPrem, portTCPrem);
             }
-            printf("Connexió TCP @sck ser %s:%d @sck cli %s:%d\n", IPloc, portTCPloc, IPrem, portTCPrem);
-            dprintf(fileLog, "Connexió TCP @sck ser %s:%d @sck cli %s:%d\n", IPloc, portTCPloc, IPrem, portTCPrem);
         }
         else if (socketAux == 0)
         { // Tancar Servidor
@@ -188,7 +195,7 @@ int main(int argc, char *argv[])
                 dprintf(fileLog, "UEBc_ServeixPeticio(): %s\n\n", TextRes);
 
                 // Tot correcte
-                if (servPet == 0 || servPet == 1 || servPet == -4)
+                if (servPet == 0 || servPet == 1 || servPet == -4 || servPet == -5)
                 {
                     // Mostrar el temps
                     printf("%s\n", TextTemps);
@@ -200,20 +207,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Tanca connexions
-    int k;
-    for (k = 0; k < LongLlistaSck; k++)
-    {
-        if (LlistaSck[k] != 0 && LlistaSck[k] != -1)
-        {
-            if (UEBs_TancaConnexio(LlistaSck[k], TextRes) == -1)
-            {
-                printf("UEBc_TancaConnexio(): %s\n", TextRes);
-                dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
-                exit(-1);
-            }
-        }
-    }
+    tancarConnexions(LlistaSck, LongLlistaSck, fileLog, TextRes);
 
     free(LlistaSck);
     close(fileLog);
@@ -332,8 +326,23 @@ int LlegirFitxerCFG(int *fileLog, int *portTCP, int *maxConTCP)
         {
             *maxConTCP = atoi(valor);
         }
-        // else if (strcmp(opcio, "#Arrel") == 0) {
-        //     strncpy(arrelUEB, valor, sizeof(arrelUEB) - 1);
-        // }
+    }
+}
+
+void tancarConnexions(int *LlistaSck, int LongLlistaSck, int fileLog, char *TextRes)
+{
+    // Tanca connexions
+    int k;
+    for (k = 0; k < LongLlistaSck; k++)
+    {
+        if (LlistaSck[k] != 0 && LlistaSck[k] != -1)
+        {
+            if (UEBs_TancaConnexio(LlistaSck[k], TextRes) == -1)
+            {
+                printf("UEBc_TancaConnexio(): %s\n", TextRes);
+                dprintf(fileLog, "UEBc_TancaConnexio(): %s\n", TextRes);
+                exit(-1);
+            }
+        }
     }
 }

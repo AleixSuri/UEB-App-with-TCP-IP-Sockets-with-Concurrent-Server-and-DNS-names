@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
+#include <dirent.h>
 
 #include "p3-tTCP.h"
 #include "p3-aUEBs.h"
@@ -37,6 +38,10 @@
 
 int ConstiEnvMis(int SckCon, const char *tipus, const char *info1, int long1);
 int RepiDesconstMis(int SckCon, char *tipus, char *info1, int *long1);
+int compara_vectors(const char *vec1, const char *vec2, int mida);
+int LlegirFitxerCFG2(char *arrelUEB);
+int gestionarCarpeta(char *NomFitx, int long1, char *arrelUEB, char *tipusEnv, char *infoEnv, int *longEnv);
+int gestionarFitxer(char *NomFitx, int long1, char *arrelUEB, char *tipusEnv, char *infoEnv, int *longEnv);
 
 /* Definició de funcions EXTERNES, és a dir, d'aquelles que es cridaran   */
 /* des d'altres fitxers, p.e., int UEBs_FuncioExterna(arg1, arg2...) { }  */
@@ -127,6 +132,7 @@ int UEBs_AcceptaConnexio(int SckEsc, char *TextRes)
 /* -3 si l'altra part tanca la connexió;                                  */
 /* -4 si hi ha problemes amb el fitxer de la petició (p.e., nomfitxer no  */
 /*  comença per /, fitxer no es pot llegir, fitxer massa gran, etc.).     */
+/* -5 si el fitxer index.html no existia abans                            */
 int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *TextRes, char *TextTemps)
 {
     int CodiRes;
@@ -155,35 +161,26 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
 
     // Llegir arrel llocUEB
     char arrelUEB[200] = {0};
-    char linia[50], opcio[30], valor[40];
-    FILE *fp;
-    fp = fopen("p3-serUEB.cfg", "r");
-    if (fp == NULL)
-    {
-        perror("Error en obrir el fitxer de configuració.\n");
-        return -1;
-    }
-    while (fgets(linia, sizeof(linia), fp) != NULL)
-    {
-        if (sscanf(linia, "%s %s", opcio, valor) != 2)
-        {
-            perror("Format del fitxer cfg incorrecte.\n");
-            return -1;
-        }
-
-        // Comprovar l'opció que estem llegint
-        if (strcmp(opcio, "#Arrel") == 0)
-        {
-            strncpy(arrelUEB, valor, sizeof(arrelUEB) - 1);
-        }
-    }
+    LlegirFitxerCFG2(arrelUEB);
 
     // Obre fitxer
     char tipusEnv[3];
     int longEnv;
     char infoEnv[10000];
     int file;
-    if (NomFitx[0] != '/')
+    if (NomFitx[long1 - 1] == '/')
+    { // Si es una carpeta...Retornar fitxer index.html
+        file = gestionarCarpeta(NomFitx, long1, arrelUEB, tipusEnv, infoEnv, &longEnv);
+        if (file == -1)
+        {
+            file = -5;
+        }
+        else if (file == -4)
+        {
+            return -4;
+        }
+    }
+    else if (NomFitx[0] != '/')
     { // No comença per /
         sprintf(TextRes, "El nom del fitxer ha de començar amb '/'");
         memcpy(tipusEnv, "ERR", 3);
@@ -193,49 +190,8 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
         file = -4;
     }
     else
-    { // Nom fitxer comença per /
-        // Buscar i treure informació del fitxer NomFitxer rebut
-        char contingutFitxer[10000];
-        char nomFitxer[200];
-
-        NomFitx[long1] = '\0';
-        memcpy(nomFitxer, arrelUEB + 1, strlen(arrelUEB) - 1);
-        memcpy(nomFitxer + strlen(nomFitxer), NomFitx, long1 + 1);
-
-        file = open(nomFitxer, O_RDONLY);
-        if (file == -1)
-        { // fitxer no existeix
-            memcpy(tipusEnv, "ERR", 3);
-            longEnv = (int)strlen("1 fitxer no trobat");
-            memcpy(infoEnv, "1 fitxer no trobat", longEnv);
-        }
-        else
-        { // fitxer existeix
-            int bytesFitxer = read(file, contingutFitxer, 10000);
-            if (bytesFitxer == -1)
-            {
-                sprintf(TextRes, "Fitxer no es pot llegir correctament.");
-                close(file);
-                return -4;
-            }
-
-            // fitxer molt gran
-            if (bytesFitxer > 9999)
-            {
-                sprintf(TextRes, "Fitxer massa gran per ser enviat.");
-                memcpy(tipusEnv, "ERR", 3);
-                longEnv = (int)strlen("2 fitxer massa gran\0");
-                memcpy(infoEnv, "2 fitxer massa gran", longEnv);
-                file = -4;
-            }
-            else
-            {
-                memcpy(tipusEnv, "COR", 3);
-                longEnv = bytesFitxer;
-                memcpy(infoEnv, contingutFitxer, longEnv);
-                close(file);
-            }
-        }
+    { // Nom fitxer comença per '/'
+        file = gestionarFitxer(NomFitx, long1, arrelUEB, tipusEnv, infoEnv, &longEnv);
     }
 
     // Enviar missatge PUEB amb contingut del fitxer o errors
@@ -273,6 +229,11 @@ int UEBs_ServeixPeticio(int SckCon, char *TipusPeticio, char *NomFitx, char *Tex
     {
         return -4;
     }
+    else if (file == -5)
+    {
+        sprintf(TextRes, "Tot bé, fitxer index.html creat i enviat.");
+        return -5;
+    }
     else
     {
         sprintf(TextRes, "Tot bé, el fitxer existeix al servidor.");
@@ -299,7 +260,7 @@ int UEBs_TancaConnexio(int SckCon, char *TextRes)
         return -1;
     }
 
-    strcpy(TextRes, "Socket servidor tancat correctament\0");
+    strcpy(TextRes, "Socket tancat correctament\0");
     return res;
 }
 
@@ -496,4 +457,195 @@ int compara_vectors(const char *vec1, const char *vec2, int mida)
         }
     }
     return 0; // Si no hi ha cap diferència, retorna true
+}
+
+/* Llegeix el fitxer de configuracio p3-serUEB.cfg i omple els            */
+/* corresponents parametres                                               */
+/*                                                                        */
+/* Retorna:                                                               */
+/*  0 si tot va bé;                                                       */
+/* -1 si hi ha error.                                                     */
+int LlegirFitxerCFG2(char *arrelUEB)
+{
+    // Llegir fitxer config
+    char linia[50], opcio[20], valor[20];
+    FILE *fp;
+    fp = fopen("p3-serUEB.cfg", "r");
+    if (fp == NULL)
+    {
+        printf("Error en obrir el fitxer de configuració.\n");
+        return -1;
+    }
+
+    while (fgets(linia, sizeof(linia), fp) != NULL)
+    {
+        if (sscanf(linia, "%s %s", opcio, valor) != 2)
+        {
+            printf("Format del fitxer cfg incorrecte.\n");
+            return -1;
+        }
+
+        // Comprovar l'opció que estem llegint
+        if (strcmp(opcio, "#Arrel") == 0)
+        {
+            memcpy(arrelUEB, valor, strlen(valor));
+        }
+    }
+}
+
+/* Obre la carpeta i busca el fitxer index.html, si no existeix, es crea  */
+/* i es guarda el resultat d'executar la comanda 'ls -l'                  */
+/*                                                                        */
+/* Retorna:                                                               */
+/*  0 si tot correcte                                                     */
+/*  -4 si hi ha error                                                     */
+int gestionarCarpeta(char *NomFitx, int long1, char *arrelUEB, char *tipusEnv, char *infoEnv, int *longEnv)
+{
+    char contingutFitxer[10000];
+    char carpeta[250];
+    char nomFitxer[250];
+
+    NomFitx[long1] = '\0';
+
+    // Construir el path de la carpeta
+    memcpy(carpeta, arrelUEB + 1, strlen(arrelUEB) - 1);             // Afegir l'arrelUEB
+    memcpy(carpeta + strlen(carpeta), NomFitx, strlen(NomFitx) + 1); // Afegir el nom del fitxer
+
+    // Construir el path de index.html
+    memcpy(nomFitxer, carpeta, strlen(carpeta));                                   // Copiar el path del directori a nomFitxer
+    memcpy(nomFitxer + strlen(nomFitxer), "index.html", strlen("index.html") + 1); // Afegir "/index.html"
+
+    int file = open(nomFitxer, O_RDONLY);
+    if (file == -1)
+    {
+        int index = open(nomFitxer, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (index == -1)
+        {
+            perror("\nError al obrir el fitxer per desar-lo.");
+            return -1;
+        }
+
+        // Executar comanda 'ls -l'
+        int fd[2];
+        pipe(fd);
+        if (fork() == 0)
+        {
+            close(fd[0]);
+            dup2(fd[1], 1);
+            close(fd[1]);
+            execl("/bin/ls", "ls", "-l", carpeta, (char *)0);
+        }
+        else
+        {
+            int bytesFitxer = read(fd[0], contingutFitxer, 10000);
+            if (bytesFitxer == -1)
+            {
+                sprintf(infoEnv, "Fitxer no es pot llegir correctament.");
+                close(file);
+                file = -4;
+            }
+
+            // fitxer molt gran
+            if (bytesFitxer > 9999)
+            {
+                sprintf(infoEnv, "Fitxer massa gran per ser enviat.");
+                memcpy(tipusEnv, "ERR", 3);
+                *longEnv = (int)strlen("2 fitxer massa gran\0");
+                memcpy(infoEnv, "2 fitxer massa gran", *longEnv);
+                file = -4;
+            }
+            else
+            {
+                memcpy(tipusEnv, "COR", 3);
+                *longEnv = bytesFitxer;
+                memcpy(infoEnv, contingutFitxer, *longEnv);
+                close(file);
+            }
+            write(index, contingutFitxer, bytesFitxer);
+            close(index);
+        }
+    }
+    else
+    {
+        int bytesFitxer = read(file, contingutFitxer, 10000);
+        if (bytesFitxer == -1)
+        {
+            sprintf(infoEnv, "Fitxer no es pot llegir correctament.");
+            close(file);
+            file = -4;
+        }
+
+        // fitxer molt gran
+        if (bytesFitxer > 9999)
+        {
+            sprintf(infoEnv, "Fitxer massa gran per ser enviat.");
+            memcpy(tipusEnv, "ERR", 3);
+            *longEnv = (int)strlen("2 fitxer massa gran\0");
+            memcpy(infoEnv, "2 fitxer massa gran", *longEnv);
+            file = -4;
+        }
+        else
+        {
+            memcpy(tipusEnv, "COR", 3);
+            *longEnv = bytesFitxer;
+            memcpy(infoEnv, contingutFitxer, *longEnv);
+            close(file);
+        }
+    }
+
+    return file;
+}
+
+/* Obre el fitxer sol·licitat, i retorna el missatge i/o fitxer depenen   */
+/* el resultat de la cerca                                                */
+/*                                                                        */
+/* Retorna:                                                               */
+/*  0 si tot correcte                                                     */
+/*  -1 si tot correcte                                                    */
+/*  -4 si hi ha error                                                     */
+int gestionarFitxer(char *NomFitx, int long1, char *arrelUEB, char *tipusEnv, char *infoEnv, int *longEnv)
+{
+    char contingutFitxer[10000];
+    char nomFitxer[200];
+
+    NomFitx[long1] = '\0';
+    memcpy(nomFitxer, arrelUEB + 1, strlen(arrelUEB) - 1);               // Afegir l'arrelUEB
+    memcpy(nomFitxer + strlen(nomFitxer), NomFitx, strlen(NomFitx) + 1); // Afegir el nom del fitxer
+
+    int file = open(nomFitxer, O_RDONLY);
+    if (file == -1)
+    { // fitxer no existeix
+        memcpy(tipusEnv, "ERR", 3);
+        *longEnv = (int)strlen("1 fitxer no trobat");
+        memcpy(infoEnv, "1 fitxer no trobat", *longEnv);
+    }
+    else
+    { // fitxer existeix
+        int bytesFitxer = read(file, contingutFitxer, 10000);
+        if (bytesFitxer == -1)
+        {
+            sprintf(infoEnv, "Fitxer no es pot llegir correctament.");
+            close(file);
+            file = -4;
+        }
+
+        // fitxer molt gran
+        if (bytesFitxer > 9999)
+        {
+            sprintf(infoEnv, "Fitxer massa gran per ser enviat.");
+            memcpy(tipusEnv, "ERR", 3);
+            *longEnv = (int)strlen("2 fitxer massa gran\0");
+            memcpy(infoEnv, "2 fitxer massa gran", *longEnv);
+            file = -4;
+        }
+        else
+        {
+            memcpy(tipusEnv, "COR", 3);
+            *longEnv = bytesFitxer;
+            memcpy(infoEnv, contingutFitxer, *longEnv);
+            close(file);
+        }
+    }
+
+    return file;
 }
