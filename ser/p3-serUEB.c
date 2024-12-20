@@ -93,8 +93,6 @@ int main(int argc, char *argv[])
     AfegeixSck(sck, LlistaSck, LongLlistaSck); // Socket d'escolta
 
     // Bucle per esperar i rebre peticions
-    void gestionarPeticions(int sck, int *LlistaSck, int LongLlistaSck, int fileLog, char *TextRes);
-
     int acabar = 0;
     while (!acabar)
     {
