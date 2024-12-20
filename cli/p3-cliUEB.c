@@ -224,7 +224,7 @@ void guardarFitxer(char *NomFitx, char *Fitx, int LongFitx)
     char nomFitxer[200];
     strcpy(nomFitxer, &NomFitx[1]); // treure '/' NomFitxer
 
-    if (nomFitxer[strlen(nomFitxer) - 1] == '/')
+    if (strlen(nomFitxer) == 0 || nomFitxer[strlen(nomFitxer) - 1] == '/')
     {
         strcat(nomFitxer, "index.html");
     }
